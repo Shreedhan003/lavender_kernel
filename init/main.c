@@ -88,7 +88,7 @@
 #include <asm/setup.h>
 #include <asm/sections.h>
 #include <asm/cacheflush.h>
-
+#include <soc/qcom/boot_stats.h>
 static int kernel_init(void *);
 
 extern void init_IRQ(void);
@@ -492,11 +492,14 @@ static void __init mm_init(void)
 	ioremap_huge_init();
 	kaiser_init();
 }
+int fpsensor=1;
+bool is_poweroff_charge = false;
 
 asmlinkage __visible void __init start_kernel(void)
 {
 	char *command_line;
 	char *after_dashes;
+	char *p=NULL;
 
 	/*
 	 * Need to run as early as possible, to initialize the
@@ -506,11 +509,6 @@ asmlinkage __visible void __init start_kernel(void)
 	set_task_stack_end_magic(&init_task);
 	smp_setup_processor_id();
 	debug_objects_early_init();
-
-	/*
-	 * Set up the the initial canary ASAP:
-	 */
-	boot_init_stack_canary();
 
 	cgroup_init_early();
 
@@ -525,6 +523,10 @@ asmlinkage __visible void __init start_kernel(void)
 	page_address_init();
 	pr_notice("%s", linux_banner);
 	setup_arch(&command_line);
+	/*
+	 * Set up the the initial canary ASAP:
+	 */
+	boot_init_stack_canary();
 	mm_init_cpumask(&init_mm);
 	setup_command_line(command_line);
 	setup_nr_cpu_ids();
@@ -535,6 +537,21 @@ asmlinkage __visible void __init start_kernel(void)
 	page_alloc_init();
 
 	pr_notice("Kernel command line: %s\n", boot_command_line);
+    p = NULL;
+    p= strstr(boot_command_line,"androidboot.fpsensor=fpc");
+    if(p){
+        fpsensor = 1;//fc fingerprint
+    }else{
+        fpsensor = 2;//goodix fingerprint
+    }
+	
+    p= NULL;
+    p= strstr(boot_command_line,"androidboot.mode=charger");
+    if(p)
+    {
+        is_poweroff_charge = true;
+    }
+
 	/* parameters may set static keys */
 	jump_label_init();
 	parse_early_param();
@@ -963,6 +980,7 @@ static int __ref kernel_init(void *unused)
 	numa_default_policy();
 
 	flush_delayed_fput();
+	place_marker("M : Kernel End");
 
 	if (ramdisk_execute_command) {
 		ret = run_init_process(ramdisk_execute_command);
