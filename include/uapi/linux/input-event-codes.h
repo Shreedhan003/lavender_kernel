@@ -6,6 +6,7 @@
  * files. As such this file MUST only contain comments and defines.
  *
  * Copyright (c) 1999-2002 Vojtech Pavlik
+ * Copyright (C) 2021 XiaoMi, Inc.
  * Copyright (c) 2015 Hans de Goede <hdegoede@redhat.com>
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -337,6 +338,8 @@
 #define KEY_MICMUTE		248	/* Mute / unmute the microphone */
 
 /* Code 255 is reserved for special needs of AT keyboard driver */
+#define KEY_ANT_CONNECT         0x292
+#define KEY_ANT_UNCONNECT       0x293
 
 #define BTN_MISC		0x100
 #define BTN_0			0x100
@@ -758,7 +761,11 @@
 #define SW_ROTATE_LOCK		0x0c  /* set = rotate locked/disabled */
 #define SW_LINEIN_INSERT	0x0d  /* set = inserted */
 #define SW_MUTE_DEVICE		0x0e  /* set = device disabled */
-#define SW_MAX			0x0f
+#define SW_HPHL_OVERCURRENT	0x0f  /* set = over current on left hph */
+#define SW_HPHR_OVERCURRENT	0x10  /* set = over current on right hph */
+#define SW_MICROPHONE2_INSERT   0x11  /* set = inserted */
+#define SW_UNSUPPORT_INSERT	0x12  /* set = unsupported device inserted */
+#define SW_MAX			0x20
 #define SW_CNT			(SW_MAX+1)
 
 /*
